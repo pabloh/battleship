@@ -1,0 +1,2 @@
+class PlaceShipController < ApplicationController
+end
