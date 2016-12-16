@@ -33,7 +33,7 @@ class Board
   end
 
   def all_sunk?
-    ships.keys.all?(:sunk?)
+    ships.all?(:sunk?)
   end
 
   private
@@ -43,8 +43,8 @@ class Board
   end
 
   def check_already_placed(ship)
-    if ships.keys.map(&:type).include?(ship.type)
-      raise ArgumentError, "There is #{ship.type} already"
+    if ships.map(&:type).include?(ship.type)
+      raise ArgumentError, "There is a #{ship.type} already"
     end
   end
 

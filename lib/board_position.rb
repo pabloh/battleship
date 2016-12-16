@@ -17,7 +17,7 @@ class BoardPosition
     boxes.any? { |x, y| board_position.contains?(x, y) }
   end
 
-  def contains?(x, y)
+  def contains?(box_x, box_y)
     boxes.any? { |x, y| box_x == x && box_y == y }
   end
 
@@ -28,22 +28,20 @@ class BoardPosition
   private
 
   def boxes
+    return enum_for(:boxes) if !block_given?
+
     if orientation == :vertical
       length.times { |idx| yield @x, @y + idx }
     else
-      length.times { |idx| yield (@x.ord + idx).chr, @y + 1 }
+      length.times { |idx| yield (@x.ord + idx).chr, @y }
     end
   end
 
-  def stern_box
-    enum_for(:boxes).to_a.last
-  end
-
   def check_valid_coordinates
-    stern_n, stern_y = stern_box
+    stern_x, stern_y = boxes.to_a.last
 
     unless self.class.valid_box?(@x, @y) && self.class.valid_box?(stern_x, stern_y)
-      raise ArgumentError, "The ship doesn't properly fit at the board" unless type.in?(TYPES)
+      raise ArgumentError, "The ship doesn't properly fit at the board"
     end
   end
 end
