@@ -14,12 +14,18 @@ class BoardPosition
   end
 
   def overlaps?(board_position)
-    board_position.boxes.any? { |x, y| contains?(x ,y) }
+    boxes.any? { |x, y| board_position.contains?(x, y) }
   end
 
   def contains?(x, y)
     boxes.any? { |x, y| box_x == x && box_y == y }
   end
+
+  def self.valid_box?(x, y)
+    x.in?(X_COORDS) && y.in?(Y_COORDS)
+  end
+
+  private
 
   def boxes
     if orientation == :vertical
@@ -29,25 +35,15 @@ class BoardPosition
     end
   end
 
-  private
-
-  def calculate_stern_coordinates
-    if orientation == :vertical
-      [@x, @y + length]
-    else
-      [(@x.ord + length).chr, @y] 
-    end
+  def stern_box
+    enum_for(:boxes).to_a.last
   end
 
   def check_valid_coordinates
-    stern_n, stern_y = calculate_stern_coordinates
+    stern_n, stern_y = stern_box
 
-    unless valid_position?(@x, @y) && valid_position?(stern_x, stern_y)
+    unless self.class.valid_box?(@x, @y) && self.class.valid_box?(stern_x, stern_y)
       raise ArgumentError, "The ship doesn't properly fit at the board" unless type.in?(TYPES)
     end
-  end
-
-  def valid_position?(x, y)
-    x.in?(X_COORDS) && y.in?(Y_COORDS)
   end
 end

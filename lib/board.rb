@@ -1,14 +1,17 @@
 require 'ship'
+require 'board_position'
 require 'set'
 
 class Board
+  SHIPS_NUMBER = 5
+
   def initialize
     @ships_positions = {}
     @already_hit = Set.new
   end
 
   def ready?
-    ships.size == 5
+    ships.size == SHIPS_NUMBER
   end
 
   def place_ship!(ship, x, y, orientation)
@@ -20,7 +23,8 @@ class Board
   end
 
   def attack!(x, y)
-    raise ArgumentError, "You've already that box" unless @already_hit.exclude([x, y])
+    raise ArgumentError, "Invalid box" unless BoardPosition.valid_box?(x, y)
+    raise ArgumentError, "You've already hit that box" unless @already_hit.exclude?([x, y])
     @already_hit << [x, y]
 
     if ship = ship_at(x, y)
