@@ -8,7 +8,7 @@ describe Ship do
     end
   
     it "rejects an invalid battleship type" do
-      expect { Ship.new(:fishing_boat) }.to raise_error(ArgumentError)
+      expect { Ship.new(:fishing_boat) }.to raise_error(ArgumentError, "Invalid type")
     end
   end
 
@@ -29,11 +29,11 @@ describe Ship do
 
   describe "#attack!" do
     it "returns true on a successful attack" do
-      expect(ship.attack!(1)).to be(true)
+      expect(ship.attack!(1)).to be_truthy
     end
 
     it "rejects an invalid segment" do
-      expect { ship.attack!(2) }.to raise_error(ArgumentError)
+      expect { ship.attack!(2) }.to raise_error(RangeError)
     end
   end
 

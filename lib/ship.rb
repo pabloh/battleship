@@ -20,7 +20,7 @@ class Ship
   end
 
   def attack!(segment)
-    raise ArgumentError, "Out of range" unless segment.in?(0..length.pred)
+    raise RangeError unless segment.in?(0..length.pred)
     @attacked[segment] = true
   end
 

@@ -1,12 +1,11 @@
-require 'ship'
-require 'board_position'
+require 'ship_position'
 require 'set'
 
 class Board
   SHIPS_NUMBER = 5
 
   def initialize
-    @ships_positions = {}
+    @ships_positions = []
     @already_hit = Set.new
   end
 
@@ -14,49 +13,44 @@ class Board
     ships.size == SHIPS_NUMBER
   end
 
-  def place_ship!(ship, x, y, orientation)
-    pos = BoardPosition.new(x, y, ship, orientation)
-    check_already_placed(ship)
+  def place_ship!(ship, box, orientation)
+    pos = ShipPosition.new(ship, box, orientation)
+    check_present_type(ship)
     check_overlaping(pos)
     
-    @ships_positions[ship] = pos 
+    @ships_positions << pos
   end
 
-  def attack!(x, y)
-    raise ArgumentError, "Invalid box" unless BoardPosition.valid_box?(x, y)
-    raise ArgumentError, "You've already hit that box" unless @already_hit.exclude?([x, y])
-    @already_hit << [x, y]
+  def attack!(box)
+    raise ArgumentError, "Box already hit" unless @already_hit.exclude?(box)
+    @already_hit << box
 
-    if ship = ship_at(x, y)
-      ship.attack!(position(ship).segment)
-    end
+    ship_at(box)&.attack!(box)
   end
 
   def all_sunk?
-    ships.all?(:sunk?)
+    ships.all?(&:sunk?)
   end
 
   private
 
   def ships
-    @ships_positions.keys
+    @ships_positions.map(&:ship)
   end
 
-  def check_already_placed(ship)
+  def ship_at(box)
+    @ships_positions.find { |pos| pos.cover?(box) }
+  end
+
+  def check_present_type(ship)
     if ships.map(&:type).include?(ship.type)
-      raise ArgumentError, "There is a #{ship.type} already"
-    end
-  end
-
-  def ship_at(x, y)
-    @ships_positions.each do |ship, pos|
-      return ship if pos.contains?(x,y)
+      raise ArgumentError, "There's already a #{ship.type}"
     end
   end
 
   def check_overlaping(new_ship_pos)
-    if @ships_positions.values.any? { |pos| pos.overlaps?(new_ship_pos) }
-      raise ArgumentError, "There is a ship already in that position"
+    if @ships_positions.any? { |pos| pos.overlaps?(new_ship_pos) }
+      raise ArgumentError, "Occupied position"
     end
   end
 end
